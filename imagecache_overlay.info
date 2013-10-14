@@ -1,0 +1,6 @@
+name = "Image Overlay Action"
+description = "Overlay an image via image styles."
+core = 7.x
+package = Media
+
+dependencies[] = image

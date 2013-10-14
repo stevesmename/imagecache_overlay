@@ -1,0 +1,64 @@
+<?php
+/**
+* Implements hook_image_effect_info().
+*/
+function imagecache_overlay_image_effect_info() {
+  return array(
+    'imagecache_overlay_image' => array(
+      'label' => t('Image Overlay'),
+      'help' => t('Adds a image in the middle of a given image.'),
+      'effect callback' => 'imagecache_overlay_image_callback',
+      'dimensions passthrough' => TRUE,
+    ),
+  );
+}
+
+/**
+* Video Play Button image callback.
+*
+* Adds a video play button on top of a given image.
+*
+* @param $image
+*   An image object returned by image_load().
+*
+* @return
+*   TRUE on success. FALSE on failure to colorize image.
+*/
+function imagecache_overlay_image_callback(&$image) {
+  // Make sure the imagecopymerge() function exists (in GD image library).
+  if (!function_exists('imagecopymerge')) {
+    watchdog('image', 'The image %image could not be processed because the imagecopymerge() function is not available in this PHP installation.', array('%file' => $image->source));
+    return FALSE;
+  }
+
+  // Verify that Drupal is using the PHP GD library for image manipulations
+  // since this effect depends on functions in the GD library.
+  if ($image->toolkit != 'gd') {
+    watchdog('image', 'Image processing failed on %path. Using non GD toolkit.', array('%path' => $image->source), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // Calculate the proper coordinates for placing the play button in the middle.
+  $destination_x = ($image->info['width'] / 2) - 40;
+  $destination_y = ($image->info['height'] / 2) - 40;
+
+  // Load the play button image.
+  $play_button_image = imagecreatefrompng(drupal_get_path('module', 'imagecache_overlay') . '/images/play-button.png');
+  imagealphablending($play_button_image, TRUE); // Preserve transparency.
+  imagealphablending($image->resource, TRUE); // Preserve transparency.
+
+  // Use imagecopy() to place the play button over the image.
+  imagecopy(
+    $image->resource, // Destination image.
+    $play_button_image, // Source image.
+    $destination_x, // Destination x coordinate.
+    $destination_y, // Destination y coordinate.
+    0, // Source x coordinate.
+    0, // Source y coordinate.
+    95, // Source width.
+    95 // Source height.
+  );
+
+  return TRUE;
+}
+?>
