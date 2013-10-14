@@ -1,7 +1,7 @@
-Module adds a play button icon over images with Drupal imagecache.
-
 Image Overlay (Adds Play Button Icon)
 ==================
+
+Module adds a play button icon over images with Drupal imagecache.
 
 User Problem:
 Client needed way to upload video thumbnails to the site, when images were 
